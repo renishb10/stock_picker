@@ -1,54 +1,113 @@
 # StockPicker Crew
 
-Welcome to the StockPicker Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+Welcome to the **StockPicker Crew** project, powered by [crewAI](https://crewai.com).  
+This application demonstrates how multiple AI agents can collaborate to analyze financial news, research companies, and pick the best stock for investment decisions.
+
+The crew leverages:
+
+- **Hierarchical multi-agent orchestration**
+- **Integrated web search tools** (SerperDevTool)
+- **Push notifications** for decision alerts
+- **Memory layers** (long-term, short-term RAG, and entity memory) for contextual intelligence
+
+---
 
 ## Installation
 
-Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
+Ensure you have **Python >=3.10 <3.14** installed.
 
-First, if you haven't already, install uv:
+This project uses [UV](https://docs.astral.sh/uv/) for dependency management.
+
+Install UV if not already installed:
 
 ```bash
 pip install uv
 ```
 
-Next, navigate to your project directory and install the dependencies:
+Navigate to your project directory and install dependencies:
 
-(Optional) Lock the dependencies and install them by using the CLI command:
 ```bash
 crewai install
 ```
-### Customizing
 
-**Add your `OPENAI_API_KEY` into the `.env` file**
+### Environment Setup
 
-- Modify `src/stock_picker/config/agents.yaml` to define your agents
-- Modify `src/stock_picker/config/tasks.yaml` to define your tasks
-- Modify `src/stock_picker/crew.py` to add your own logic, tools and specific args
-- Modify `src/stock_picker/main.py` to add custom inputs for your agents and tasks
+Add your required keys to a `.env` file:
+
+```bash
+OPENAI_API_KEY=your_openai_key
+SERPER_API_KEY=your_serper_key
+PUSHOVER_TOKEN=your_pushover_token
+PUSHOVER_USER=your_pushover_user
+```
+
+---
 
 ## Running the Project
 
-To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:
+To launch your crew of agents:
 
 ```bash
-$ crewai run
+crewai run
 ```
 
-This command initializes the stock_picker Crew, assembling the agents and assigning them tasks as defined in your configuration.
+## Screenshot
 
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
+![Screenshot](static/ss.png)
+
+By default, outputs will be saved to the `output/` folder:
+
+- `output/trending_companies.json` → List of trending companies
+- `output/research_report.json` → Detailed analysis of companies
+- `output/decision.md` → Final investment pick and rationale
+
+---
 
 ## Understanding Your Crew
 
-The stock_picker Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
+The **StockPicker Crew** is composed of specialized AI agents that collaborate under a **Manager agent** using a **hierarchical process**.
 
-## Support
+### Agents
 
-For support, questions, or feedback regarding the StockPicker Crew or crewAI.
-- Visit our [documentation](https://docs.crewai.com)
-- Reach out to us through our [GitHub repository](https://github.com/joaomdmoura/crewai)
-- [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
-- [Chat with our docs](https://chatg.pt/DWjSBZn)
+- **Trending Company Finder**
 
-Let's create wonders together with the power and simplicity of crewAI.
+  - Role: Financial News Analyst
+  - Finds 2–3 trending companies in the target sector using SerperDevTool.
+  - Avoids repeating previously picked companies.
+
+- **Financial Researcher**
+
+  - Role: Senior Financial Researcher
+  - Produces comprehensive company analysis (market position, outlook, investment potential).
+
+- **Stock Picker**
+
+  - Role: Equity Selector
+  - Chooses the single best investment candidate.
+  - Sends a push notification to the user with a 1-sentence rationale.
+  - Produces a detailed markdown report.
+
+- **Manager**
+  - Delegates tasks across agents.
+  - Ensures the process flows toward a final investment decision.
+
+### Tasks
+
+- **Find Trending Companies** → `output/trending_companies.json`
+- **Research Companies** → `output/research_report.json`
+- **Pick Best Company** → `output/decision.md`
+
+### Memory Layers
+
+- **Long-Term Memory (SQLite)** → Persists context across sessions.
+- **Short-Term Memory (RAG)** → Tracks active session knowledge.
+- **Entity Memory (RAG)** → Maintains knowledge about specific companies/entities.
+
+---
+
+## Example Flow
+
+1. Manager delegates to **Trending Company Finder** → finds hot companies in a sector.
+2. **Financial Researcher** performs deep dives.
+3. **Stock Picker** selects the best one, sends a **push notification**, and generates a markdown report.
+4. Manager ensures smooth orchestration.
